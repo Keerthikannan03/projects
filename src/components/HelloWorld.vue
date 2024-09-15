@@ -1,7 +1,7 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>Testing in todo list project</p>
+    <h1>Welcome to my project</h1>  
+    <p>Testing in todolist project</p>
   </div>
 </template>
 
