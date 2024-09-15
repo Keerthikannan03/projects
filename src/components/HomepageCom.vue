@@ -2,7 +2,7 @@
     <v-layout>
       <v-navigation-drawer v-model="drawer" location="right" temporary :width="500" persistent>
         <div>
-          <v-form v-model="validForm" ref="form" @submit.prevent="submitForm">
+          <v-form v-model="validForm" ref="formref" @submit.prevent="submitForm">
 
           <div class="py-3 d-flex align-center" @click="drawer = false"
             style="position: sticky;top: 0;background: cadetblue;color: white;z-index: 999;cursor: pointer;">
@@ -52,11 +52,24 @@
           </div>
 
           <div class="m-4">
-                <v-btn class="mr-4" type="submit" color="success">Save Segment</v-btn>
+                <v-btn class="mr-4" type="submit" color="success" width="200px">
+                  <span v-if="!proLoader">Save Segment</span>
+                  <v-progress-circular v-if="proLoader" indeterminate ></v-progress-circular>
+                </v-btn>
               </div>
         </v-form>
 
         </div>
+
+        <v-dialog v-model="showmsg" max-width="400" persistent>
+          <v-card>
+            <v-card-text class="text-center">
+              Schema Details Sended Successfully!!!
+            </v-card-text>
+            <v-btn @click="doneMsg()">Done</v-btn>
+          </v-card>
+        </v-dialog>
+
       </v-navigation-drawer>
       <v-main style="height: 250px">
         <div class="d-flex justify-center align-center h-100">
@@ -79,6 +92,8 @@ export default {
   data () {
       return {
         drawer: null,
+        proLoader:false,
+        showmsg:false,
 
         validForm:false,
         segmentName:"",
@@ -114,6 +129,7 @@ export default {
         this.schemaError = false;
         if (!this.schema) {
           this.schemaError = true;
+          this.proLoader =  false;
           return;
         }
         const selectedSchemaObj = this.schemaList.find(s => s.value === this.schema);
@@ -134,8 +150,11 @@ export default {
       async submitForm(){
         this.schemaError = false;
 
+        this.proLoader = true;
+
         if (!this.selectedSchema.length > 0) {
           this.schemaError = true;
+          this.proLoader = false;
           return;
         }
         
@@ -155,21 +174,41 @@ export default {
           objData.schema.push(schemaItem)
         });
 
-      await axios.get("https://webhook.site/3ae9c04e-6544-41e9-aa52-004e8481dc96",{
-          params: objData,
+        // let getObjData = JSON.stringify(objData)
+        let queryString = new URLSearchParams(JSON.stringify(objData)).toString();
+        console.log(queryString,'getObjDatagetObjData')
+        
+
+      await axios.get(`https://webhook.site/3ae9c04e-6544-41e9-aa52-004e8481dc96?${queryString}`,{
           headers: {
             "Content-Type": "application/json",
           },
         })
         .then((response) => {
           if (response) {
-            console.log(response, "responseresponse...")           
+            console.log(response, "responseresponse...")  
+            setTimeout(()=>{
+              this.proLoader = false;
+              this.showmsg = true;
+              // this.$refs.formref.reset()
+            },3000)         
           }
         })
         .catch((error) => {
           console.log(error, "errorerror");
+          setTimeout(()=>{
+              this.proLoader = false;
+              this.showmsg = true;
+              // this.$refs.formref.reset()
+            },3000)
         });
+      },
 
+      doneMsg(){
+        this.showmsg = false;
+        setTimeout(()=>{
+          location.reload();  
+        },500)
       }
     },
     computed: {
