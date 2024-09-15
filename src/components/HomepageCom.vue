@@ -221,6 +221,7 @@ export default {
       );
     },
 
+    
     filteredSelectedSchemas() {
       if (!this.segmentName) {
         return this.selectedSchema;
