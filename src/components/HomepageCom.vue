@@ -194,7 +194,7 @@ export default {
         // console.log(getObjData,'getObjDatagetObjData...2')
 
         try {
-          const apiEndpoint = process.env.NODE_ENV === 'production'
+          const apiEndpoint = process.env.NODE_ENV === "production"
           ? "https://webhook.site/17263b62-c7da-4e48-9b72-9d7a0ca23098"
           : "/api/17263b62-c7da-4e48-9b72-9d7a0ca23098";
 
