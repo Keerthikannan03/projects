@@ -194,7 +194,12 @@ export default {
         // console.log(getObjData,'getObjDatagetObjData...2')
 
         try {
-          const response = await axios.post("/api/17263b62-c7da-4e48-9b72-9d7a0ca23098",objData, {
+          const apiEndpoint = process.env.NODE_ENV === 'production'
+          ? "https://webhook.site/17263b62-c7da-4e48-9b72-9d7a0ca23098"
+          : "/api/17263b62-c7da-4e48-9b72-9d7a0ca23098";
+
+
+          const response = await axios.post(apiEndpoint, objData, {
             headers: {
               "Content-Type": "application/json",
             },
@@ -208,7 +213,7 @@ export default {
           }, 3000);
         } catch (error) {
           console.log(error, "errorerror");
-          this.geterrormsg = error.response.data.error.message
+          this.geterrormsg = error.response.data.error.message ? error.response.data.error.message : error.message;
 
           setTimeout(() => {
             this.proLoader = false;
