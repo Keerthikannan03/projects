@@ -61,10 +61,21 @@
 
         </div>
 
-        <v-dialog v-model="showmsg" max-width="400" persistent>
+        <v-dialog v-model="showmsg" max-width="600" persistent>
           <v-card>
             <v-card-text class="text-center">
-              Schema Details Sended Successfully!!!
+              <p>Schema Details Sended Successfully!!!</p>
+              <p v-html="getdataschema"></p>
+            </v-card-text>
+            <v-btn @click="doneMsg()">Done</v-btn>
+          </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="showError" max-width="600" persistent>
+          <v-card>
+            <v-card-text class="text-center">
+              <h4>Oops! 404 Not Found!</h4>
+              <p>{{ geterrormsg }}</p>
             </v-card-text>
             <v-btn @click="doneMsg()">Done</v-btn>
           </v-card>
@@ -94,6 +105,7 @@ export default {
         drawer: null,
         proLoader:false,
         showmsg:false,
+        showError:false,
 
         validForm:false,
         segmentName:"",
@@ -121,6 +133,8 @@ export default {
 
         selectedSchema:[],
         schemaError : false,
+        getdataschema: "",
+        geterrormsg: ""
       }
     },
 
@@ -174,38 +188,39 @@ export default {
           objData.schema.push(schemaItem)
         });
 
-        // let getObjData = JSON.stringify(objData)
-        let queryString = new URLSearchParams(JSON.stringify(objData)).toString();
-        console.log(queryString,'getObjDatagetObjData')
-        
+        console.log(objData,'getObjDatagetObjData...1')
 
-      await axios.get(`https://webhook.site/3ae9c04e-6544-41e9-aa52-004e8481dc96?${queryString}`,{
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          if (response) {
-            console.log(response, "responseresponse...")  
-            setTimeout(()=>{
-              this.proLoader = false;
-              this.showmsg = true;
-              // this.$refs.formref.reset()
-            },3000)         
-          }
-        })
-        .catch((error) => {
+        // let getObjData = JSON.stringify(objData).toString();
+        // console.log(getObjData,'getObjDatagetObjData...2')
+
+        try {
+          const response = await axios.post("/api/17263b62-c7da-4e48-9b72-9d7a0ca23098",objData, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });  
+          console.log(response, "responseresponse...");
+          this.getdataschema = response.data;
+          setTimeout(() => {
+            this.proLoader = false;
+            this.showmsg = true;
+            // this.$refs.formref.reset();  // Uncomment if needed
+          }, 3000);
+        } catch (error) {
           console.log(error, "errorerror");
-          setTimeout(()=>{
-              this.proLoader = false;
-              this.showmsg = true;
-              // this.$refs.formref.reset()
-            },3000)
-        });
+          this.geterrormsg = error.response.data.error.message
+
+          setTimeout(() => {
+            this.proLoader = false;
+            this.showError = true;
+            // this.$refs.formref.reset();  // Uncomment if needed
+          }, 3000);
+        }
       },
 
       doneMsg(){
         this.showmsg = false;
+        this.showError = false;
         setTimeout(()=>{
           location.reload();  
         },500)
